@@ -106,7 +106,7 @@ class TestSaleDeliveryWindow(SavepointCase):
         # Set to saturday (preferred)
         order.commitment_date = "2020-03-28 08:00:00"
         onchange_res = order._onchange_commitment_date()
-        self.assertIsNone(onchange_res)
+        self.assertFalse(onchange_res and "warning" in onchange_res.keys())
         # Test warning on stock.picking
         order.action_confirm()
         picking = order.picking_ids
@@ -117,7 +117,7 @@ class TestSaleDeliveryWindow(SavepointCase):
         # Set to saturday (preferred)
         picking.scheduled_date = "2020-03-28 08:00:00"
         onchange_res = picking._onchange_scheduled_date()
-        self.assertIsNone(onchange_res)
+        self.assertFalse(onchange_res and "warning" in onchange_res.keys())
 
     @freeze_time("2020-03-24 01:00:00")  # Tuesday
     def test_prepare_procurement_values(self):
