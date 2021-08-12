@@ -7,6 +7,4 @@ from odoo import fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    commitment_date = fields.Datetime(
-        required=True, default=fields.Datetime.now, copy=True
-    )
+    commitment_date = fields.Datetime(required=True, copy=True)
