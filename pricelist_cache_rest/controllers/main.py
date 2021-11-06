@@ -3,13 +3,13 @@
 
 import json
 
-from odoo import http
 from werkzeug.exceptions import Unauthorized
+
+from odoo import http
 
 
 class PricelistController(http.Controller):
-    """Expose prices for pricelists.
-    """
+    """Expose prices for pricelists."""
 
     @http.route(
         "/pricelist/<model('res.partner'):partner>",
@@ -51,7 +51,5 @@ class PricelistController(http.Controller):
         return http.request.make_response(json.dumps(data), headers=headers)
 
     def _cache_to_json(self, cache_items):
-        exporter = cache_items.env.ref(
-            "pricelist_cache_rest.ir_exp_cache_item"
-        )
+        exporter = cache_items.env.ref("pricelist_cache_rest.ir_exp_cache_item")
         return cache_items.jsonify(exporter.get_json_parser())

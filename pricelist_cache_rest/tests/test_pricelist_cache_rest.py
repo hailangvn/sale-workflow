@@ -3,9 +3,10 @@
 import contextlib
 import json
 
+from werkzeug.exceptions import Unauthorized
+
 from odoo.addons.pricelist_cache.tests.common import TestPricelistCacheCommon
 from odoo.addons.website.tools import MockRequest
-from werkzeug.exceptions import Unauthorized
 
 from ..controllers.main import PricelistController
 
@@ -23,7 +24,7 @@ LIST_PRICES_MAPPING = {
         {"id": 20, "price": 47.0},
     ],
     "pricelist_cache.list2": [
-        {"id": 17, "price": 50.0},
+        {"id": 17, "price": 75.0},
         {"id": 18, "price": 79.0},
         {"id": 19, "price": 100.0},
         {"id": 20, "price": 47.0},
@@ -63,9 +64,7 @@ class TestPricelistCache(TestPricelistCacheCommon):
     @contextlib.contextmanager
     def _get_mocked_request(self, httprequest=None, extra_headers=None):
         with MockRequest(self.env) as mocked_request:
-            mocked_request.httprequest = (
-                httprequest or mocked_request.httprequest
-            )
+            mocked_request.httprequest = httprequest or mocked_request.httprequest
             headers = {}
             headers.update(extra_headers or {})
             mocked_request.httprequest.headers = headers
@@ -90,7 +89,9 @@ class TestPricelistCache(TestPricelistCacheCommon):
         partner = self.partner
         for pricelist_xmlid, expected_result in LIST_PRICES_MAPPING.items():
             partner.property_product_pricelist = self.env.ref(pricelist_xmlid)
+            result = []
             with self._get_mocked_request():
                 resp = self.ctrl.partner_pricelist(partner)
                 data = self._resp_data(resp)
-                self.assertEqual(data, expected_result)
+                [result.append(c) for c in data if c["id"] in self.products.ids]
+                self.assertEqual(result, expected_result)

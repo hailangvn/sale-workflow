@@ -3,16 +3,16 @@
 {
     "name": "Pricelist Cache Rest",
     "summary": "Provides an endpoint to get product prices for a given customer",
-    "version": "13.0.1.0.0",
+    "version": "14.0.1.0.0",
     "category": "Hidden",
-    "author": "Camptocamp",
+    "author": "Odoo Community Association (OCA), Camptocamp",
     "license": "AGPL-3",
     "depends": [
         "auth_api_key",
         "base_jsonify",
         "pricelist_cache",
     ],
-    "website": "https://www.camptocamp.com",
+    "website": "https://github.com/OCA/sale-workflow",
     "installable": True,
     "data": [
         "data/ir_exports_data.xml",
