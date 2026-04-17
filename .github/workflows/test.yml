@@ -8,13 +8,14 @@ on:
     branches:
       - "19.0"
       - "19.0-ocabot-*"
+  workflow_dispatch:
 
 jobs:
   unreleased-deps:
     runs-on: ubuntu-latest
     name: Detect unreleased dependencies
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: |
           for reqfile in requirements.txt test-requirements.txt ; do
               if [ -f ${reqfile} ] ; then
@@ -29,45 +30,9 @@ jobs:
           done
   test:
     runs-on: ubuntu-22.04
-    container: ${{ matrix.container }}
-    name: ${{ matrix.name }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - container: ghcr.io/oca/oca-ci/py3.10-odoo19.0:latest
-            name: test with Odoo
-          - container: ghcr.io/oca/oca-ci/py3.10-ocb19.0:latest
-            name: test with OCB
-            makepot: "true"
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: odoo
-          POSTGRES_PASSWORD: odoo
-          POSTGRES_DB: odoo
-        ports:
-          - 5432:5432
-    env:
-      OCA_ENABLE_CHECKLOG_ODOO: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: trobz/odoo-venv@v1.20.2
         with:
-          persist-credentials: false
-      - name: Install addons and dependencies
-        run: oca_install_addons
-      - name: Check licenses
-        run: manifestoo -d . check-licenses
-      - name: Check development status
-        run: manifestoo -d . check-dev-status --default-dev-status=Beta
-      - name: Initialize test db
-        run: oca_init_test_database
-      - name: Run tests
-        run: oca_run_tests
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Update .pot files
-        run: oca_export_and_push_pot https://x-access-token:${{ secrets.GIT_PUSH_TOKEN }}@github.com/${{ github.repository }}
-        if: ${{ matrix.makepot == 'true' && github.event_name == 'push' && github.repository_owner == 'OCA' }}
+          python_version: "3.11"
+          odoo_version: "19.0"
+          oca_repos: "account-invoicing server-backend server-tools server-ux"
